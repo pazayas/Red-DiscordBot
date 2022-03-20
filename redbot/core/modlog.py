@@ -160,7 +160,7 @@ async def _init(bot: Red):
                     lambda e: e.target.id == user.id and after < e.created_at < before,
                     guild.audit_logs(
                         action=discord.AuditLogAction.unban, before=before, after=after
-                    )
+                    ),
                 )
             except discord.Forbidden:
                 break
