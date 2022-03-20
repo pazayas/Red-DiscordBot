@@ -665,11 +665,16 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
             to_del: List[int] = []
             for user_id in self._channel_mutes[after.id].keys():
                 send_messages = False
+                send_messages_in_threads = False
                 speak = False
                 if user_id in after_perms:
                     send_messages = (
                         after_perms[user_id]["send_messages"] is None
                         or after_perms[user_id]["send_messages"] is True
+                    )
+                    send_messages_in_threads = (
+                        after_perms[user_id]["send_messages_in_threads"] is None
+                        or after_perms[user_id]["send_messages_in_threads"] is True
                     )
                     speak = (
                         after_perms[user_id]["speak"] is None
@@ -677,7 +682,8 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
                     )
                 # explicit is better than implicit :thinkies:
                 if user_id in before_perms and (
-                    user_id not in after_perms or any((send_messages, speak))
+                    user_id not in after_perms
+                    or any((send_messages, send_messages_in_threads, speak))
                 ):
                     user = after.guild.get_member(user_id)
                     send_dm_notification = True
@@ -901,7 +907,12 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
             )
         async with ctx.typing():
             perms = discord.Permissions()
-            perms.update(send_messages=False, speak=False, add_reactions=False)
+            perms.update(
+                send_messages=False,
+                send_messages_in_threads=False,
+                speak=False,
+                add_reactions=False,
+            )
             try:
                 role = await ctx.guild.create_role(
                     name=name, permissions=perms, reason=_("Mute role setup")
@@ -943,6 +954,7 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
             return channel.mention
         overs = discord.PermissionOverwrite()
         overs.send_messages = False
+        overs.send_messages_in_threads = False
         overs.add_reactions = False
         overs.speak = False
         try:
@@ -1659,7 +1671,9 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
 
         new_overs: dict = {}
         move_channel = False
-        new_overs.update(send_messages=False, add_reactions=False, speak=False)
+        new_overs.update(
+            send_messages=False, send_messages_in_threads=False, add_reactions=False, speak=False
+        )
         send_reason = None
         if user.voice and user.voice.channel:
             if channel.permissions_for(guild.me).move_members:
@@ -1761,7 +1775,12 @@ class Mutes(VoiceMutes, commands.Cog, metaclass=CompositeMetaClass):
         if channel.id in perms_cache:
             old_values = perms_cache[channel.id]
         else:
-            old_values = {"send_messages": None, "add_reactions": None, "speak": None}
+            old_values = {
+                "send_messages": None,
+                "send_messages_in_threads": None,
+                "add_reactions": None,
+                "speak": None,
+            }
 
         if user.voice and user.voice.channel:
             if channel.permissions_for(guild.me).move_members:
