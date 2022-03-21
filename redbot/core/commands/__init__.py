@@ -169,6 +169,8 @@ from discord.ext.commands import (
     ObjectConverter as ObjectConverter,
     FlagConverter as FlagConverter,
     MissingFlagArgument as MissingFlagArgument,
+    ScheduledEventConverter as ScheduledEventConverter,
+    ScheduledEventNotFound as ScheduledEventNotFound,
     check as check,
     guild_only as guild_only,
     cooldown as cooldown,
