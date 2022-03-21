@@ -34,9 +34,8 @@ class KickBanMixin(MixinMeta):
         guild = ctx.guild
         my_perms: discord.Permissions = guild.me.guild_permissions
         if my_perms.manage_guild or my_perms.administrator:
-            if guild.vanity_url_code is not None:
-                # DEP-WARN: discord.Invite.BASE is not documented
-                return f"{discord.Invite.BASE}/{guild.vanity_url_code}"
+            if guild.vanity_url is not None:
+                return guild.vanity_url
             invites = await guild.invites()
         else:
             invites = []
